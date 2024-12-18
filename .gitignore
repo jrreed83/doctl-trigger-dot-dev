@@ -1,0 +1,7 @@
+.env
+.deployed
+node_modules
+__deployer__.zip
+lib/
+package-lock.json
+

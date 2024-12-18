@@ -1,0 +1,23 @@
+parameters: {}
+environment: {}
+packages:
+    - name: sample
+      shared: false
+      environment: 
+      parameters: {}
+      annotations: {}
+      functions:
+        - name: hello
+          binary: false
+          main: ""
+          runtime: nodejs:18
+          web: true
+          webSecure: false
+          parameters: {}
+          environment: 
+            TRIGGER_SECRET_KEY: "${TRIGGER_SECRET_KEY}"
+          annotations: {}
+          limits: 
+            timeout: 300000 
+            memory: 512
+

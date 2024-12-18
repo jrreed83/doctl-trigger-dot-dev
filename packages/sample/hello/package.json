@@ -1,0 +1,17 @@
+{
+  "main": "lib/hello.js",
+  "dependencies": {
+    "@trigger.dev/sdk": "^3.3.7",
+    "ai": "^4.0.18",
+    "defu": "^6.1.4",
+    "esbuild": "^0.24.0",
+    "ts-essentials": "^10.0.3",
+    "typescript": "^5.7.2"
+  },
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "devDependencies": {
+    "@trigger.dev/build": "^3.3.7"
+  }
+}
