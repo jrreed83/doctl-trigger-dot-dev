@@ -1,5 +1,6 @@
 .env
 .deployed
+.trigger
 node_modules
 __deployer__.zip
 lib/

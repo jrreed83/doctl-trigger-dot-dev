@@ -10,7 +10,7 @@ export const digitial_ocean_task = task({
     await wait.for({ seconds: 5 });
 
     return {
-      message: "Hello, digital ocean",
+      message: `Hello, digital ocean from ${payload.name}`
     }
   },
 });
