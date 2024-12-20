@@ -12,6 +12,7 @@
     "build": "tsc -b"
   },
   "devDependencies": {
-    "@trigger.dev/build": "^3.3.7"
+    "@trigger.dev/build": "^3.3.7",
+    "googleapis": "^144.0.0"
   }
 }
