@@ -1,4 +1,4 @@
-import type { update_google_sheet_task } from "./trigger/example";
+//import type { google_sheets_task } from "./trigger/example";
 import { tasks } from "@trigger.dev/sdk/v3";
 
 export async function main(event: any, context: any) {
@@ -6,16 +6,16 @@ export async function main(event: any, context: any) {
     let greeting = `Hello ${name}`;
     console.log(event);
 
-
-    const payload = {
-        name: name,
-        targetCell: targetCell
-    };
     
-    await tasks.trigger<typeof update_google_sheet_task>(
-        "google-sheet",
-        payload
+    await tasks.trigger(
+        "google-sheets",
+        event
     );
+    // Pass all the event data to the task
+    //await tasks.trigger<typeof google_sheets_task>(
+    //    "google-sheets",
+    //    event
+    //);
 
     return {"body": greeting}
 }

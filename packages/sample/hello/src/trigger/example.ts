@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { logger, task, wait } from "@trigger.dev/sdk/v3";
 import { google } from "googleapis";
 import OpenAI from 'openai';
@@ -27,12 +29,11 @@ const credentials = JSON.parse(
   Buffer.from(google_credential_base64, "base64").toString("utf8")
 );
 
-const auth = new google.auth.GoogleAuth({
+const googleAuth = new google.auth.GoogleAuth({
   credentials,
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 });
 
-const client = await auth.getClient();
 
 
 export const google_sheets_task = task({
@@ -42,12 +43,18 @@ export const google_sheets_task = task({
   maxDuration: 300, // Stop executing after 300 secs (5 mins) of compute
 
   run: async (payload: any, { ctx }) => {
-    logger.log("Hello, from digital ocean!", { payload, ctx });
+
+    
+    logger.log("Getting google authorization", { payload, ctx });
+    
+    const googleClient = await googleAuth.getClient();
+    
+    logger.log("Obtained google authorization", { payload, ctx });
+
 
     // Grab pieces of the payload we're interested in
     
     const {name, sheetName, targetCell, skills} = payload;
-    //const name = payload.name;
     
     await wait.for({ seconds: 5 });
 
@@ -64,15 +71,12 @@ export const google_sheets_task = task({
         model: "gpt-3.5-turbo",
     });
 
-    logger.log(chatCompletion, payload);
-
     // Deal with Error Case too .
     const openaiResponse = chatCompletion.choices[0].message.content;
     
 
-
     // Get result and store in google sheets
-    const sheets = google.sheets({version: "v4", auth: client});
+    const sheets = google.sheets({version: "v4", auth: googleClient});
 
     const result = await sheets.spreadsheets.values.get({
       spreadsheetId: google_sheet_id,
@@ -81,10 +85,10 @@ export const google_sheets_task = task({
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: google_sheet_id,
-      auth: client,
+      auth: googleClient,
       range: `${sheetName}!${targetCell}`,
       resource: { 
-        values: [[`hello ${name}, heres the completion: ${openaiResponse}`]]
+        values: [[`hello ${name}, here's the completion: ${openaiResponse}`]]
       },
       valueInputOption: "USER_ENTERED"
     });
