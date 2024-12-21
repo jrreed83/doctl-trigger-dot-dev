@@ -1,6 +1,12 @@
 import { logger, task, wait } from "@trigger.dev/sdk/v3";
 import { google } from "googleapis";
+import OpenAI from 'openai';
 
+
+
+const openai = new OpenAI({
+  apiKey: process.env['OPENAI_API_KEY'], // This is the default and can be omitted
+});
 
 
 /*
@@ -29,8 +35,8 @@ const auth = new google.auth.GoogleAuth({
 const client = await auth.getClient();
 
 
-export const digitial_ocean_task = task({
-  id: "digital-ocean",
+export const google_sheets_task = task({
+  id: "google-sheets",
 
   // Set an optional maxDuration to prevent tasks from running indefinitely
   maxDuration: 300, // Stop executing after 300 secs (5 mins) of compute
@@ -38,33 +44,52 @@ export const digitial_ocean_task = task({
   run: async (payload: any, { ctx }) => {
     logger.log("Hello, from digital ocean!", { payload, ctx });
 
-    // Grab Payload ...
-    const name = payload.name;
-
+    // Grab pieces of the payload we're interested in
+    
+    const {name, sheetName, targetCell, skills} = payload;
+    //const name = payload.name;
+    
     await wait.for({ seconds: 5 });
 
     // Send portion of payload to open-ai
-    console.log("Want to sed to open-ai");
+    logger.info("Submitting prompt to OpenAI", payload);
+
+    const chatCompletion = await openai.chat.completions.create({
+        messages: [{ 
+            role: 'user', 
+            content: `Can you give me a list of career options for the following 
+                      list of skills. I just want a comma separated list.  No 
+                      extra content please.  Here's the list of skills: ${skills}`
+        }],
+        model: "gpt-3.5-turbo",
+    });
+
+    logger.log(chatCompletion, payload);
+
+    // Deal with Error Case too .
+    const openaiResponse = chatCompletion.choices[0].message.content;
+    
+
 
     // Get result and store in google sheets
     const sheets = google.sheets({version: "v4", auth: client});
 
     const result = await sheets.spreadsheets.values.get({
       spreadsheetId: google_sheet_id,
-      range: "Sheet1!A2:D4"
+      range: `${sheetName}!A2:D4`
     });
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: google_sheet_id,
       auth: client,
-      range: "Sheet1!E3",
+      range: `${sheetName}!${targetCell}`,
       resource: { 
-        values: [["hello from trigger.dev"]]
+        values: [[`hello ${name}, heres the completion: ${openaiResponse}`]]
       },
       valueInputOption: "USER_ENTERED"
     });
 
-    console.log(result.data);
+    logger.info(result.data, payload);
 
     return {
       message: `Hello, digital ocean from ${name}`

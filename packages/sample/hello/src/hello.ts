@@ -1,4 +1,4 @@
-import type { digitial_ocean_task } from "./trigger/example";
+import type { update_google_sheet_task } from "./trigger/example";
 import { tasks } from "@trigger.dev/sdk/v3";
 
 export async function main(event: any, context: any) {
@@ -6,9 +6,15 @@ export async function main(event: any, context: any) {
     let greeting = `Hello ${name}`;
     console.log(event);
 
-    await tasks.trigger<typeof digitial_ocean_task>(
-        "digital-ocean",
-        {"name": name}
+
+    const payload = {
+        name: name,
+        targetCell: targetCell
+    };
+    
+    await tasks.trigger<typeof update_google_sheet_task>(
+        "google-sheet",
+        payload
     );
 
     return {"body": greeting}
